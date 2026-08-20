@@ -1,0 +1,10 @@
+### Conjuntos
+%I set < 1..3 > ### conjunto de plantas
+%J set < 1..4 > ### conjunto de centros
+
+### Parametros
+%O[I] < 5000 6000 2500 > ### Oferta em unidades da planta i
+%D[J] < 6000 4000 2000 1500 > ### Demanda em unidades do centro j
+%C[I, J] <3 2 7 6 
+7 5 2 3
+2 5 4 5 > ### Custo em unidades de envio da planta i para o centro j

@@ -1,0 +1,17 @@
+@source ### Fonte dos dados
+%file < transporte_EXCEL.xlsx > ### arquivo-fonte em formato xlsx
+%sheet < Dados > ### Worksheet valida (somente uma!) 
+
+@input ### entrada de dados
+### Conjuntos
+%I set < F12:F14 > ### conjunto de plantas
+%J set < G11:J11 > ### conjunto de centros
+
+### Parametros
+%O[I] < E5:E7 > ### Oferta em unidades da planta i
+%D[J] < G3:J3 > ### Demanda em unidades do centro j
+%C[I,J] < G5:J7 > ### Custo em unidades de envio da planta i para o centro j
+
+@output ### saida de dados
+%objValue < C3 > ### valor da FO
+%x[I,J].activity < G12:J14 > ### valores de xij

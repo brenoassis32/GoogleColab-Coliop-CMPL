@@ -1,0 +1,15 @@
+%xlsdata transportation.xdat // Leitura do arquivo de dados externo para compor a formulação geral
+#%display nonZeros
+
+%solver cbc // Resolvedor adotado: Coin Branch-and-Cut
+
+var:
+x[I,J]: int;// Numero de unidades enviadas da planta 𝑖 para o centro 𝑗
+
+obj: // minimizar o custo total
+FO: sum{i in I, j in J: C[i,j] * x[i,j] } ->min;
+
+con:
+Ofertas {i in I : sum{j in J: x[i,j]} = O[i];} //Restrições de Oferta
+
+Demandas {j in J: sum{i in I: x[i,j]} = D[j];} //Restrições de Demanda
