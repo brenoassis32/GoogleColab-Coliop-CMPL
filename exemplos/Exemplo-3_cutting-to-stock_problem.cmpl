@@ -1,0 +1,32 @@
+# Modelo de Programação Linear Inteira: Problema de Corte de Estoque
+# Linguagem: CMPL 2.1.0
+
+par:
+    # Conjuntos
+    J := set(1..3);  # 1: 1.5m, 2: 2.5m, 3: 3.5m
+    I := set(1..6);  # Padrões de corte não-dominados
+
+    # Demandas de cada peça
+    D[J] := (200, 250, 130);
+
+    # Perda residual (em metros) de cada padrão de corte j
+    PERDA[I] := (1.0, 0.0, 0.5, 0.5, 1.0, 0.0);
+
+    # Matriz de rendimento PRODUCAO[i, j] (Quantidade de peças de tamanho i no padrão j)
+    PRODUCAO[J, I] := (
+        (4, 3, 2, 1, 0, 0),  # Peças de 1.5m geradas em cada padrão
+        (0, 1, 0, 2, 1, 0),  # Peças de 2.5m geradas em cada padrão
+        (0, 0, 1, 0, 1, 2)   # Peças de 3.5m geradas em cada padrão
+    );
+
+var:
+    # Variáveis de decisão inteiras e não-negativas
+    x[I] : integer[0..];
+
+obj:
+    # Função objetivo: Minimizar a perda total de madeira
+    perda_total: sum{i in I: PERDA[i]*x[i]} -> min;
+
+con:
+    # Restrição: A produção de cada tamanho de tábua deve cobrir a demanda
+    AtenderDemanda{j in J: sum{i in I: PRODUCAO[j,i] * x[i]} >= D[j];}

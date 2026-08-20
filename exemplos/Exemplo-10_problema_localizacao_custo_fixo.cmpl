@@ -1,0 +1,38 @@
+# Modelo de Dimensionamento de Lotes Multi-Item (CLSP) com Setup
+# Linguagem: CMPL 2.1.0
+
+par:
+    # Definição dos Conjuntos de Índices.
+    I := set(1..5);   # Produtos
+    J := set(1..8);   # Períodos (Semanas)
+
+    CF[I] := (0.65,0.42,0.48,0.6,0.5); # Custo Fixo (10^6 R$)
+    D[I,J] := ( #DISTANCIA
+        ( 94, 104, 280, 197,  89, 235, 135, 116),  # Armazém 1
+        (139, 248,  79, 176, 330, 308, 321, 295),  # Armazém 2
+        (202, 270,  95,  70, 300, 259, 122, 320),  # Armazém 3
+        (342, 258, 233, 187,  90,  88, 127, 225),  # Armazém 4
+        ( 54,  59,  97, 143, 190, 211, 100, 156)   # Armazém 5
+    );
+
+    V[J] := (189,385,353,493,826,715,720,521); #Demanda
+    K[I]:= (3500,2400,2500,3000,2800);
+    TAXA:= 2.0;
+
+#    {j in J, i in I:
+#     C[i,j]:=TAXA*D[i,j]*V[j];
+#     echo(C[i,j]);
+#    }
+
+var:
+    x[I,J] : real[0..1];
+
+    y[I] : binary;
+
+obj:
+#    custo_total: sum{j in J, i in I: C[i,j]*x[i,j] + CF[i]*y[i]} -> min;
+    custo_total: sum{j in J, i in I: TAXA*D[i,j]*V[j]*x[i,j] + CF[i]*y[i]} -> min;
+
+con:
+    Demanda{j in J: sum{i in I: x[i,j]} = 1;}
+    CapacidadeProducao{i in I: sum{j in J: V[j]*x[i,j]} <= K[i]*y[i];}

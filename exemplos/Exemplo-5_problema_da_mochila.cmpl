@@ -1,0 +1,27 @@
+# Modelo de Programação Linear Inteira - Formulação Indexada
+# Linguagem: CMPL 2.1.0
+
+par:
+    # Conjunto de índices de 1 a 6
+    I := set(1..6);
+
+    # Coeficientes de utilidade/retorno na Função Objetivo
+    KCAL[I] := (3500, 5200, 2800, 6500, 3900, 4500);
+
+    # Coeficientes de peso/consumo de recursos de cada variável x_i
+    MASSA[I] := (0.6, 0.7, 0.9, 1.5, 0.8, 1.0);
+
+    # Limite máximo de capacidade do recurso
+    K := 4.5;
+
+var:
+    # Vetor de variáveis inteiras e não-negativas (x_i >= 0 e inteiras)
+    x[I] : integer[0..];
+
+obj:
+    # Função Objetivo: Maximizar o somatório dos coeficientes vezes as variáveis
+    z: sum{i in I: KCAL[i] * x[i]} -> max;
+
+con:
+    # Restrição: Garantir que o consumo total não ultrapasse o limite 'K'
+    LimiteRecurso{: sum{i in I: MASSA[i] * x[i]} <= K;}

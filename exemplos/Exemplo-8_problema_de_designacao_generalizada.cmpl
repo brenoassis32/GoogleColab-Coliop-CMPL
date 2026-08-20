@@ -1,0 +1,34 @@
+# Modelo de Alocação de Cargas com Minimização de Custos de Designação
+# Linguagem: CMPL 2.1.0
+
+par:
+    # Conjuntos de Índices
+    I := set(1..3);  # Containers
+    J := set(1..7);  # Cargas
+
+    # Set de tuplas representando as conexões permitidas (A <= I x J)
+    A := set([1,1], [1, 2], [1, 3], [1, 4], [1, 5],[2, 1], [2,2], [2, 3], [2, 4], [2, 5], [2, 6], [2, 7],[3, 5], [3, 6], [3, 7]);
+
+    # Massas reais das cargas (em toneladas)
+    MASSA[J] := (7.5, 6.5, 8.0, 12.0, 14.0, 11.5, 5.2);
+
+    # Capacidades limites de cada container (em toneladas)
+    K[I] := (24.0, 25.4, 30.5);
+
+    # Custos de designação mapeados apenas sobre o conjunto de tuplas A
+    CUSTOS[A] := (1.00, 1.25, 1.20, 1.20, 1.30, 0.90, 0.95, 1.10, 1.10, 1.20, 1.30, 1.40, 1.40, 1.50, 1.60);
+
+var:
+    # Variáveis de decisão binárias
+    x[A] : binary;
+
+obj:
+    # Minimizar o custo total de designação das cargas
+    custo_total: sum{[i, j] in A: CUSTOS[i,j]*x[i,j]} -> min;
+
+con:
+    # Restrição 1: Cada carga j deve ser transportada por exatamente 1 container viável
+    TransporteObrigatorio{j in J: sum{i in (A *> [*, j]): x[i,j]} = 1; }
+
+    # Restrição 2: O peso real total alocado a cada container não pode exceder sua capacidade
+    CapacidadeFisica{i in I: sum{j in (A *> [i, *]): MASSA[j]*x[i,j]} <= K[i]; }

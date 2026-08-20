@@ -1,0 +1,43 @@
+# Modelo de Sequenciamento em Máquina Única (Minimização de Multas)
+# Linguagem: CMPL 2.1.0
+
+par:
+    # Conjunto de tarefas
+    J := set(1..3);
+
+    # Tempos de processamento (em dias)
+    PROCESSAMENTO[J] := (5, 20, 15);
+
+    # Prazos de execução (em dias)
+    EXECUCAO[J] := (25, 22, 35);
+
+    # Multas por atraso ($/dia)
+    MULTA[J] := (19, 12, 34);
+
+    # Big-M: Soma de todos os tempos de processamento
+    M := sum{j in J: PROCESSAMENTO[j]}; # Igual a 40 dias
+
+var:
+    # Tempo de término de cada tarefa i
+    x[J] : real[0..];
+
+    # Atraso (Tardiness) de cada tarefa i
+    t[J] : real[0..];
+
+    # Variável binária de precedência y[i,j] (1 se i precede j; 0 c.c.)
+    y[J,J] : binary;
+
+obj:
+    # Função Objetivo: Minimizar a soma ponderada dos atrasos pelas multas
+    multa_total: sum{j in J: MULTA[j]*t[j]} -> min;
+
+con:
+    # O término de cada tarefa deve respeitar seu tempo mínimo de execução
+    TerminoMinimo{j in J: x[j] >= PROCESSAMENTO[j];}
+
+    # O atraso é definido por: T_i >= C_i - d_i
+    AtrasoTarefa{j in J: t[j] >= x[j] - EXECUCAO[j];}
+
+    # Restrições disjuntivas (Big-M) aplicadas aos pares ordenados (i < j)
+    Precedencia1{i in J, j in J, i<j: x[i] >= x[j] + PROCESSAMENTO[i] - M*(1 - y[i,j]);}
+    Precedencia2{i in J, j in J, i<j: x[j] >= x[i] + PROCESSAMENTO[j] - M*y[i,j];}

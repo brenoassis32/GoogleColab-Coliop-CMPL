@@ -1,0 +1,54 @@
+# Modelo de Dimensionamento de Lotes Multi-Item (CLSP) com Setup
+# Linguagem: CMPL 2.1.0
+
+par:
+    # Definição dos Conjuntos de Índices.
+    J := set(1..2);   # Produtos
+    I := set(1..4);   # Períodos (Semanas)
+
+    # Parâmetros de Custo e Tempo por Produto (Tabela 7)
+    CE[J] := (2.0, 1.5);      # Custo de Estocagem (R$/ton.semana)
+    CP[J] := (250, 350);  # Custo Fixo de Preparação (R$)
+    TPE[J] := (1.75, 2.5);     # Tempo de preparação (h)
+    TPO[J] := (0.15, 0.20);    # Tempo de processamento (h/ton)
+
+    # Demanda de cada produto em cada semana (Tabela 8)
+    D[J, I] := (
+        (100, 250, 50,  50),  # Produto 1 (semanas 1 a 4)
+        (200,   0, 50, 300)   # Produto 2 (semanas 1 a 4)
+    );
+
+    # Capacidade semanal de produção (em horas)
+    K := 80.0;
+
+    # Big-M ajustado: Demanda residual acumulada de cada produto j a partir de cada semana t, seguindo a lógica: M_jt = min{ sum{t in I: D_jt};(K_t-TPE_j)/TPO_j}
+{j in J, t in I:
+{sum{a in I, a>=t: D[j,a]}<(K-TPE[j])/TPO[j]: M[j,t]:=sum{a in I, a>=t: D[j,a]};
+|: M[j,t]:=(K-TPE[j])/TPO[j];}
+}
+# Ou, equivalentemente:
+#    M[J,I] := (
+#        (450.0, 350, 100,  50),  # Produto 1
+#        (387.5, 350, 350, 300)   # Produto 2
+#    );
+
+var:
+# Quantidade produzida do produto j na semana i (em toneladas)
+    x[J,I] : real[0..];
+
+# Nível de estoque do produto j no final da semana t.
+    h[J,I] : real[0..];
+
+# Variável binária de preparação do produto j no final da semana t.
+    y[J,I] : binary;
+
+obj:
+    # Função Objetivo: Minimizar a soma dos custos de setup e estocagem
+    custo_total: sum{j in J, t in I: CP[j]*y[j,t]} + sum{j in J, t in I, t<max(I): CE[j]*h[j,t]} -> min;
+
+con:
+    Demanda{j in J, t in I: {t=1: x[j, t] - h[j, t] = D[j, t]; | t>1: x[j, t] + h[j, t-1] - h[j, t] = D[j, t];}}
+
+    LigacaoVariaveis{j in J, t in I: x[j, t] <= M[j,t]*y[j, t];}
+
+    CapacidadeProducao{t in I: sum{j in J: TPE[j]*y[j, t] + TPO[j]*x[j, t]} <= K;}

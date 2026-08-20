@@ -1,0 +1,30 @@
+# Modelo de Designação Ótima de Casos a Advogados
+# Linguagem: CMPL 2.1.0
+
+par:
+    # Conjuntos de índices
+    I := set(1..5);  # Advogados
+    J := set(1..5);  # Casos
+
+    # Matriz de horas C[i, j] conforme Tabela 5
+    TEMPO[I, J] := (
+        (120, 150, 100, 100, 180),  # Advogado 1
+        (100, 130, 120, 100, 220),  # Advogado 2
+        (120, 120,  90, 110, 200),  # Advogado 3
+        (150, 170, 150, 120, 150),  # Advogado 4
+        (110, 110, 130, 120, 160)   # Advogado 5
+    );
+
+var:
+    x[I, J] : binary;
+
+obj:
+    # Minimizar o somatório das horas esperadas de condução dos casos
+    horas_totais: sum{i in I, j in J: TEMPO[i,j] * x[i,j]} -> min;
+
+con:
+    # Restrição 1: Cada advogado i assume exatamente 1 caso
+    UmCasoPorAdvogado{i in I: sum{j in J: x[i,j]} = 1;}
+
+    # Restrição 2: Cada caso j é assumido por exatamente 1 advogado
+    UmAdvogadoPorCaso{j in J: sum{i in I: x[i,j]} = 1;}

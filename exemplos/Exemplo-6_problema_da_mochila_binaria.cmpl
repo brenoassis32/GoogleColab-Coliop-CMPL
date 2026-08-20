@@ -1,0 +1,23 @@
+# Modelo de Seleção de Portfólio de Investimentos (Knapsack Problem)
+# Linguagem: CMPL 2.1.0
+
+par:
+    # Conjunto de Projetos (I = {1, 2, ..., 7})
+    I := set(1..7);
+
+    # Limite de orçamento disponível
+    K := 4;
+
+    CAPITAL[I] := (0.8, 0.95, 0.68, 1.5, 1.7, 1.1, 0.78);
+    RETORNO[I] := (1.2, 1.5, 0.9, 2, 2.5, 1.8, 1.4);
+
+var:
+    x[I] : binary;
+
+obj:
+    # Função Objetivo: Maximizar o retorno total esperado da carteira
+    retorno: sum{i in I: RETORNO[i] * x[i]} -> max;
+
+con:
+    # Restrição: O custo total dos projetos selecionados não pode exceder o orçamento B
+    orcamento{:sum{i in I: CAPITAL[i] * x[i]} <= K;}

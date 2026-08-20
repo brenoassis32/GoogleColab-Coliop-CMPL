@@ -1,0 +1,34 @@
+# Modelo de Alocação Ótima de Estoque de Celulares
+# Linguagem: CMPL 2.1.0
+%display nonZeros
+par:
+    # Definição dos conjuntos
+    I := set(1..5);  # Quantidade de lotes (1 a 5)
+    J := set(1..4);  # Lojas (1 a 4)
+
+    # Matriz de receitas esperadas R[i, j] (Tabela 11)
+    # Linhas representam a quantidade i de lotes; Colunas representam as lojas j
+    R[I,J] := (
+        (100,  95, 110,  90), # Receita para 1 lote
+        (195, 190, 205, 180), # Receita para 2 lotes
+        (280, 285, 295, 270), # Receita para 3 lotes
+        (360, 370, 340, 355), # Receita para 4 lotes
+        (430, 420, 400, 420)  # Receita para 5 lotes
+    );
+
+    # Estoque em lotes (500 celulares / 100 por lote)
+    E_LOTES := 5;
+
+var:
+    x[I,J] : binary;
+
+obj:
+    # Função Objetivo: Maximizar a receita total esperada
+    receita_total: sum{i in I, j in J: R[i,j]*x[i,j]} -> max;
+
+con:
+    # Restrição 1: Cada loja j recebe no máximo um nível de lote de celulares
+    AlocacaoLoja{j in J: sum{i in I: x[i,j]} <= 1;}
+
+    # Restrição 2: O total de lotes alocados deve ser no maximo o estoque total (5 lotes)
+    LotesDisponiveis: sum{i in I, j in J: i*x[i,j]} <= E_LOTES;
