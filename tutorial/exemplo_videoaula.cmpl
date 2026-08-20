@@ -1,0 +1,24 @@
+par:
+
+Produtos:=set(1,2);
+Recursos:=set(1,2);
+
+PRECO[Produtos]:=(75,100);
+CAPACIDADE[Recursos]:=(350,800);
+CONSUMO[Recursos,Produtos]:=((1.5,2),(3,4));
+LIMITE_S[Produtos]:=(1000,150);
+
+var:
+
+x[Produtos]: int[0..];
+
+
+
+obj:
+
+receita:sum{j in Produtos: PRECO[j]*x[j]} -> max;
+
+
+con:
+DispRecursos{i in Recursos: sum{j in Produtos: CONSUMO[i,j]*x[j]} <= CAPACIDADE[i];}
+LimiteSuperior{j in Produtos: x[j] <= LIMITE_S[j];}
