@@ -15,7 +15,7 @@ par:
     K := 4.5;
 
 var:
-    # Vetor de variáveis inteiras e não-negativas (x_i >= 0 e inteiras)
+    # Variáveis inteiras e não-negativas (x_i >= 0 e inteiras)
     x[I] : integer[0..];
 
 obj:
